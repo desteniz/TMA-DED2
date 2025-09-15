@@ -22150,7 +22150,6 @@ displayTrucksWithForceEdit() {
     }, 100);
 }
 
-
 }
 
 // Initialize the application
