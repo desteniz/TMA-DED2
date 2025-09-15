@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOUROUB EL DJAZAIR - Système de Gestion de Transport</title>
+    <link rel="stylesheet" href="style.css">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+	
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>DOUROUB EL DJAZAIR</h1>
+                <p>Système de Gestion de Transport Professionnel</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Nom d'utilisateur</label>
+                    <input type="text" id="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width">Se connecter</button>
+            </form>
+            <div class="demo-accounts">
+                <h6>Comptes de démonstration:</h6>
+                <div class="demo-account-list">
+                    <div class="demo-account">planner1/plan123 (Planificateur)</div>
+                    <div class="demo-account">dispatcher1/disp123 (Répartiteur)</div>
+                    <div class="demo-account">coordinator1/coord123 (Coordinateur)</div>
+                    <div class="demo-account">admin/admin123 (Administrateur)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>DOUROUB EL DJAZAIR</h1>
+                    <span id="userInfo" class="user-info"></span>
+                </div>
+<div class="header-right">
+    <div class="app-clock-container">
+        <div class="app-clock" id="appClock">
+            <div class="clock-time" id="clockTime">--:--:--</div>
+            <div class="clock-date" id="clockDate">-- / -- / ----</div>
+        </div>
+    </div>
+
+    <div class="notification-bell" id="notificationBell">
+        <i data-lucide="bell"></i>
+        <span class="notification-badge hidden" id="notificationBadge">0</span>
+    </div>
+    <button id="logoutBtn" class="btn btn--outline">
+        <i data-lucide="log-out"></i>
+        Déconnexion
+    </button>
+</div>
+
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <button class="nav-btn active" data-section="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                Tableau de bord
+            </button>
+            <button class="nav-btn" data-section="missions">
+                <i data-lucide="truck"></i>
+                Missions
+            </button>
+            <button class="nav-btn" data-section="clients" id="clientsNav">
+                <i data-lucide="users"></i>
+                Clients
+            </button>
+            <button class="nav-btn" data-section="fleet" id="fleetNav">
+                <i data-lucide="car"></i>
+                Flotte
+            </button>
+<button class="nav-btn" data-section="tracking">
+    <i data-lucide="map-pin"></i>
+    Suivi Opérations
+</button>
+			<button class="nav-btn" data-section="reports">
+    <i data-lucide="bar-chart-3"></i>
+    Rapports
+</button>
+<!-- Settings (admin only) -->
+<button class="nav-btn" data-section="settings" id="settingsNav">
+    <i data-lucide="settings"></i>
+    Paramètres
+</button>
+
+        </nav>
+
+        <!-- Content Sections -->
+        <main class="app-content">
+<!-- Dashboard -->
+<section id="dashboard" class="content-section active">
+
+    <div class="section-header">
+        <h2>Tableau de Bord <span style="font-size: 14px; color: #666; font-weight: normal;">(Dernières 48 heures)</span></h2>
+        <div class="header-actions">
+            <div class="last-refresh-info" id="lastRefreshInfo">
+                <i data-lucide="clock"></i>
+                <span>Dernière mise à jour: --:--:--</span>
+            </div>
+            <button id="refreshDashboard" class="btn btn--secondary">
+                <i data-lucide="refresh-cw"></i>
+                Actualiser
+            </button>
+        </div>
+    </div>
+        <!-- Existing Metrics Grid -->
+    <div class="dashboard-metrics-grid" id="dashboardMetricsGrid">
+        <!-- Metrics cards will be populated here -->
+    </div>
+    <!-- NEW: Open Operations Network -->
+    <div class="operations-network-container" id="operationsNetworkContainer">
+        <div class="network-header">
+            <h3>
+                <i data-lucide="network"></i>
+                Réseau des Opérations Ouvertes
+                <span class="network-count" id="networkOperationCount">0</span>
+            </h3>
+            <div class="network-controls">
+                <button id="networkFullscreen" class="btn btn--outline btn--sm" title="Mode plein écran">
+                    <i data-lucide="maximize"></i>
+                </button>
+                <button id="networkResetView" class="btn btn--outline btn--sm" title="Recentrer sur Biskra">
+                    <i data-lucide="target"></i>
+                </button>
+                <button id="networkToggleLegend" class="btn btn--outline btn--sm" title="Afficher/Masquer la légende">
+                    <i data-lucide="info"></i>
+                </button>
+                <button id="networkToggleCollapse" class="btn btn--outline btn--sm" title="Réduire/Développer">
+                    <i data-lucide="chevron-up"></i>
+                </button>
+            </div>
+        </div>
+        
+        
+        <!-- Legend -->
+        <div class="network-legend hidden" id="networkLegend">
+            <div class="legend-section">
+                <h5>États des Opérations</h5>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #6c757d;"></span>
+                        <span>En attente</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #007bff;"></span>
+                        <span>Démarrée</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #ffc107;"></span>
+                        <span>En chargement</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #6f42c1;"></span>
+                        <span>Vers destination</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #dc3545;"></span>
+                        <span>Problème</span>
+                    </div>
+                </div>
+            </div>
+            <div class="legend-section">
+                <h5>Éléments du Réseau</h5>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-symbol">●</span>
+                        <span>Nœud = Wilaya</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-symbol">→</span>
+                        <span>Flèche = Direction opération</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-symbol">🚛</span>
+                        <span>Labels = Camions assignés</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Network Canvas -->
+        <div class="network-canvas" id="networkCanvas">
+            <!-- Cytoscape.js will render here -->
+        </div>
+        
+        <!-- Node Details Popover -->
+        <div class="network-popover hidden" id="networkPopover">
+            <div class="popover-header">
+                <h5 id="popoverTitle">Détails du Nœud</h5>
+                <button class="popover-close" id="popoverClose">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="popover-content" id="popoverContent">
+                <!-- Content populated dynamically -->
+            </div>
+        </div>
+        
+        <!-- Non-Cyclic Trucks Warning -->
+        <div class="non-cyclic-warning" id="nonCyclicWarning">
+            <div class="warning-header">
+                <i data-lucide="alert-triangle"></i>
+                <span>Camions avec Routes Non-Cycliques (ne retournent pas à Biskra)</span>
+                <button class="warning-toggle" id="nonCyclicToggle">
+                    <i data-lucide="chevron-down"></i>
+                </button>
+            </div>
+            <div class="warning-content hidden" id="nonCyclicContent">
+                <!-- Non-cyclic trucks listed here -->
+            </div>
+        </div>
+    </div>
+ <!-- Gantt Timeline Section - ADD THIS BEFORE THE METRICS GRID -->
+<div class="gantt-timeline-section" id="ganttTimelineSection">
+    <div class="gantt-header">
+        <h3>
+            <i data-lucide="calendar"></i>
+            Planning Gantt - Vue d'ensemble des opérations
+            <span class="gantt-period" id="ganttPeriod">5 jours</span>
+        </h3>
+<!-- FIND the gantt controls section and UPDATE it to include both buttons: -->
+<div class="gantt-controls">
+    <div class="btn-group">
+        <button id="ganttZoomOut" class="btn btn-outline btn-sm" title="Zoom arrière">
+            <i data-lucide="zoom-out"></i>
+        </button>
+        <button id="ganttZoomIn" class="btn btn-outline btn-sm" title="Zoom avant">
+            <i data-lucide="zoom-in"></i>
+        </button>
+    </div>
+    
+    <div class="btn-group">
+        <button id="ganttToday" class="btn btn-outline btn-sm" title="Voir aujourd'hui">
+            <i data-lucide="calendar-days"></i> Aujourd'hui
+        </button>
+        <button id="ganttCurrent" class="btn btn-primary btn-sm" title="Voir maintenant (1h avant)">
+            <i data-lucide="clock"></i> Maintenant
+        </button>
+    </div>
+    
+    <select id="ganttPeriodSelect" class="form-select form-select-sm">
+        <option value="5">5 jours</option>
+        <option value="7">1 semaine</option>
+        <option value="14">2 semaines</option>
+        <option value="30">1 mois</option>
+    </select>
+    
+    <button id="ganttFullscreen" class="btn btn-outline btn-sm" title="Plein écran">
+        <i data-lucide="maximize"></i>
+    </button>
+</div>
+
+    </div>
+
+    <div class="gantt-container" id="ganttContainer">
+        <!-- Top Scrollbar -->
+        <div class="gantt-scrollbar-top">
+            <div class="gantt-scrollbar-content" id="ganttScrollbarTop"></div>
+        </div>
+
+        <!-- Main Gantt Table -->
+        <div class="gantt-table-wrapper" id="ganttTableWrapper">
+            <div class="gantt-table" id="ganttTable">
+                <!-- Left Panel: Trucks and Clients -->
+                <div class="gantt-left-panel" id="ganttLeftPanel">
+                    <div class="gantt-left-header">
+                        <div class="truck-column-header">Camions & Clients</div>
+                        <div class="rotation-column-header">48h Rotation</div>
+                    </div>
+                    <div class="gantt-left-content" id="ganttLeftContent">
+                        <!-- Truck and client rows will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Right Panel: Timeline -->
+                <div class="gantt-right-panel" id="ganttRightPanel">
+                    <div class="gantt-timeline-header" id="ganttTimelineHeader">
+                        <!-- Timeline axis will be populated here -->
+                    </div>
+                    <div class="gantt-timeline-content" id="ganttTimelineContent">
+                        <!-- Timeline bars will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Scrollbar -->
+        <div class="gantt-scrollbar-bottom">
+            <div class="gantt-scrollbar-content" id="ganttScrollbarBottom"></div>
+        </div>
+    </div>
+
+    <!-- Gantt Tooltip -->
+    <div class="gantt-tooltip hidden" id="ganttTooltip">
+        <div class="tooltip-content" id="ganttTooltipContent"></div>
+    </div>
+</div>
+   
+
+
+    <!-- Existing Event History -->
+    <div class="dashboard-section">
+        <h3>📊 Événements Récents</h3>
+        <div id="eventHistoryContainer" class="event-history-container">
+            <div class="loading-message">Chargement des événements...</div>
+        </div>
+        
+        <!-- Event History Actions -->
+        <div class="event-actions">
+            <button id="clearEventHistory" class="btn btn--outline btn--sm">
+                <i data-lucide="trash-2"></i>
+                Vider l'historique
+            </button>
+            <button id="exportEventHistory" class="btn btn--outline btn--sm">
+                <i data-lucide="download"></i>
+                Exporter CSV
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Missions -->
+<section id="missions" class="content-section">
+    <div class="section-header">
+        <h2>Gestion des Missions</h2>
+        <div class="header-actions">
+            <button id="refreshMissionsBtn" class="btn btn--secondary">
+                <i data-lucide="refresh-cw"></i>
+                Actualiser
+            </button>
+            <button id="newMissionBtn" class="btn btn--primary">
+                <i data-lucide="plus"></i>
+                Nouvelle mission
+            </button>
+        </div>
+    </div>
+    
+    <!-- Enhanced Filters -->
+    <div class="missions-filters-enhanced">
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="filter-label">Statut Mission</label>
+                <select id="statusFilter" class="form-control filter-select">
+                    <option value="">Tous les statuts</option>
+                    <option value="demandée">Demandée</option>
+                    <option value="validée">Validée</option>
+                    <option value="en_cours">En cours</option>
+                    <option value="partiellement_terminee">Partiellement Terminée</option>
+                    <option value="terminée">Terminée</option>
+                    <option value="partiellement_annulee">Partiellement Annulée</option>
+                    <option value="annulée">Annulée</option>
+                    <option value="probleme_signalee">Problème Signalé</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Client</label>
+                <select id="clientFilter" class="form-control filter-select">
+                    <option value="">Tous les clients</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Période</label>
+                <select id="periodFilter" class="form-control filter-select">
+                    <option value="">Toutes les périodes</option>
+                    <option value="today">Aujourd'hui</option>
+                    <option value="week">Cette semaine</option>
+                    <option value="month">Ce mois</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button id="resetFilters" class="btn btn--outline btn--sm">
+                    <i data-lucide="x-circle"></i>
+                    Reset
+                </button>
+                <button id="applyFilters" class="btn btn--primary btn--sm">
+                    <i data-lucide="search"></i>
+                    Filtrer
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Missions Grid -->
+    <div class="missions-grid-container">
+        <div id="missionsList" class="missions-grid">
+            <!-- Missions will be populated here -->
+        </div>
+        
+        <!-- Empty State -->
+        <div id="missionsEmptyState" class="missions-empty-state hidden">
+            <div class="empty-icon">
+                <i data-lucide="truck"></i>
+            </div>
+            <h3>Aucune mission trouvée</h3>
+            <p>Créez votre première mission ou modifiez les filtres</p>
+            <button class="btn btn--primary" onclick="document.getElementById('newMissionBtn').click()">
+                <i data-lucide="plus"></i>
+                Nouvelle Mission
+            </button>
+        </div>
+    </div>
+</section>
+
+            <!-- Clients -->
+            <section id="clients" class="content-section">
+                <div class="section-header">
+                    <h2>Gestion des Clients</h2>
+                    <button id="newClientBtn" class="btn btn--primary">
+                        <i data-lucide="plus"></i>
+                        Nouveau client
+                    </button>
+                </div>
+                <div class="clients-grid" id="clientsGrid">
+                    <!-- Clients will be populated here -->
+                </div>
+            </section>
+
+            <!-- Fleet -->
+            <section id="fleet" class="content-section">
+                <div class="section-header">
+                    <h2>Gestion de la Flotte</h2>
+                    <div class="header-actions">
+                        <button id="newTruckBtn" class="btn btn--primary">
+                            <i data-lucide="plus"></i>
+                            Nouveau camion
+                        </button>
+                        <button id="newDriverBtn" class="btn btn--secondary">
+                            <i data-lucide="plus"></i>
+                            Nouveau chauffeur
+                        </button>
+                    </div>
+                </div>
+                <div class="fleet-tabs">
+                    <button class="tab-btn active" data-tab="trucks">Camions</button>
+                    <button class="tab-btn" data-tab="drivers">Chauffeurs</button>
+                </div>
+<div class="tab-content">
+    <div id="trucksTab" class="tab-panel active">
+        <!-- NEW TRUCK FILTERS -->
+        <div class="truck-filters" style="background: #ffffff; border: 1px solid var(--color-card-border); border-radius: var(--radius-lg); padding: var(--space-20); margin-bottom: var(--space-24); box-shadow: var(--shadow-card);">
+            <h4 style="margin: 0 0 var(--space-16) 0; color: var(--color-text); font-size: var(--font-size-base); font-weight: var(--font-weight-semibold);">
+                <i data-lucide="filter" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                Filtrer les Camions
+            </h4>
+            <div style="display: flex; gap: var(--space-16); align-items: end; flex-wrap: wrap;">
+                <div style="display: flex; flex-direction: column; gap: var(--space-8); min-width: 160px;">
+                    <label style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-secondary);">Statut</label>
+                    <select id="truckStatusFilter" class="form-control" style="padding: var(--space-8) var(--space-12); font-size: var(--font-size-sm);">
+                        <option value="">Tous les statuts</option>
+                        <option value="available">Disponible</option>
+                        <option value="busy">En mission</option>
+                    </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: var(--space-8); min-width: 160px;">
+                    <label style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-secondary);">Wilaya</label>
+                    <select id="truckLocationFilter" class="form-control" style="padding: var(--space-8) var(--space-12); font-size: var(--font-size-sm);">
+                        <option value="">Toutes les wilayas</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: var(--space-8);">
+                    <button id="applyTruckFilters" class="btn btn--primary" style="padding: var(--space-8) var(--space-16); font-size: var(--font-size-sm);">
+                        <i data-lucide="check" style="width: 14px; height: 14px; margin-right: 6px;"></i>
+                        Appliquer
+                    </button>
+                    <button id="resetTruckFilters" class="btn btn--outline" style="padding: var(--space-8) var(--space-16); font-size: var(--font-size-sm);">
+                        <i data-lucide="x-circle" style="width: 14px; height: 14px; margin-right: 6px;"></i>
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- END TRUCK FILTERS -->
+        
+        <div class="trucks-grid" id="trucksGrid">
+            <!-- Trucks will be populated here -->
+        </div>
+    </div>
+
+                    <div id="driversTab" class="tab-panel">
+                        <div class="drivers-grid" id="driversGrid">
+                            <!-- Drivers will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tracking -->
+
+<!-- Suivi Operations - ENHANCED VERSION -->
+<section id="tracking" class="content-section">
+    <div class="section-header">
+        <h2>Suivi Opérations</h2>
+        <div class="header-actions">
+<button id="exportSelectedOperations" class="btn btn--secondary">
+    <i data-lucide="download"></i>
+    Exporter Fiches Sélectionnées (PDF/JPG)
+</button>
+
+
+        </div>
+    </div>
+    
+<!-- ENHANCED Operations Filter -->
+<!-- COMPACT Filter Menu -->
+<div class="compact-filter-menu">
+    <div class="filter-menu-header">
+        <button class="filter-toggle-btn" id="filterToggleBtn">
+            <i data-lucide="filter"></i>
+            <span>Filtres</span>
+            <span class="filter-count" id="filterCount">0</span>
+            <i data-lucide="chevron-down" class="chevron-icon"></i>
+        </button>
+        <div class="quick-actions">
+            <button id="quickResetFilters" class="btn-quick-reset" title="Réinitialiser tous les filtres">
+                <i data-lucide="x-circle"></i>
+            </button>
+            <button id="applyFiltersQuick" class="btn-quick-apply" title="Appliquer les filtres">
+                <i data-lucide="check-circle"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="filter-menu-content hidden" id="filterMenuContent">
+        <div class="filter-grid">
+            <!-- Status Filter -->
+            <div class="filter-section">
+                <h4 class="filter-title">
+                    <i data-lucide="activity"></i>
+                    Statut
+                </h4>
+<div class="checkbox-group">
+    <label class="checkbox-item">
+        <input type="checkbox" value="en_attente" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">En attente</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="demarree" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">Démarrée</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="arrivee_site_chargement" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">Arrivée site chargement</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="chargement_termine" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">Chargement terminé</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="arrivee_site_destination" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">Arrivée site destination</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="dechargement_termine" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">Déchargement terminé</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="probleme_signalee" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">Problème Signalé</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="annulee" data-filter="status">
+        <span class="checkmark"></span>
+        <span class="label-text">Annulée</span>
+    </label>
+</div>
+
+            </div>
+
+            <!-- Mission Filter -->
+            <div class="filter-section">
+                <h4 class="filter-title">
+                    <i data-lucide="truck"></i>
+                    Missions
+                </h4>
+                <div class="checkbox-group" id="missionCheckboxes">
+                    <!-- Missions will be populated here -->
+                </div>
+            </div>
+
+            <!-- Client Filter -->
+            <div class="filter-section">
+                <h4 class="filter-title">
+                    <i data-lucide="users"></i>
+                    Clients
+                </h4>
+                <div class="checkbox-group" id="clientCheckboxes">
+                    <!-- Clients will be populated here -->
+                </div>
+            </div>
+
+            <!-- Date Range Filter -->
+            <div class="filter-section">
+                <h4 class="filter-title">
+                    <i data-lucide="calendar"></i>
+                    Période
+                </h4>
+                <div class="date-range-group">
+                    <div class="date-input-group">
+                        <label for="startDateFilter">Du</label>
+                        <input type="date" id="startDateFilter" class="compact-date-input">
+                    </div>
+                    <div class="date-input-group">
+                        <label for="endDateFilter">Au</label>
+                        <input type="date" id="endDateFilter" class="compact-date-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destination Filter -->
+            <div class="filter-section">
+                <h4 class="filter-title">
+                    <i data-lucide="map-pin"></i>
+                    Destinations
+                </h4>
+                <div class="checkbox-group" id="destinationCheckboxes">
+                    <!-- Destinations will be populated here -->
+                </div>
+            </div>
+
+            <!-- Driver Filter -->
+            <div class="filter-section">
+                <h4 class="filter-title">
+                    <i data-lucide="user-check"></i>
+                    Chauffeurs
+                </h4>
+                <div class="checkbox-group" id="driverCheckboxes">
+                    <!-- Drivers will be populated here -->
+                </div>
+            </div>
+
+            <!-- Truck Filter -->
+            <div class="filter-section">
+                <h4 class="filter-title">
+                    <i data-lucide="car"></i>
+                    Camions
+                </h4>
+                <div class="checkbox-group" id="truckCheckboxes">
+                    <!-- Trucks will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Filters Display -->
+        <div class="active-filters-display" id="activeFiltersDisplay">
+            <!-- Active filters will be shown here -->
+        </div>
+    </div>
+</div>
+
+    
+    <!-- ENHANCED Operations Table -->
+    <div class="operations-container">
+        <div class="operations-table-wrapper">
+            <table id="operationsTable" class="operations-table">
+<thead>
+    <tr>
+        <th class="sticky-col select-col"><input type="checkbox" id="selectAllOperations"></th>
+        <th class="sticky-col actions-col">Modifier</th>
+        <th class="truck-col">Camion</th>
+        <th class="driver-col">Chauffeur</th>
+        <th class="status-col">Statut</th>
+        <th class="gps-depart-col">GPS Départ</th>
+        <th class="gps-destination-col">GPS Destination</th>
+        <th class="operation-num-col">N° Opération</th>
+        <th class="mission-col">Mission</th>
+        <th class="client-col">Client</th>
+        <th class="destination-col">Destination Client</th>
+        <th class="wilaya-depart-col">Wilaya Départ</th>
+        <th class="wilaya-arrive-col">Wilaya Arrivée</th>
+        <th class="estimated-depart-col">Départ Estimé</th>
+        <th class="estimated-arrive-col">Arrivée Estimée</th>
+        <th class="real-depart-col">Départ Réel</th>
+        <th class="arrive-chargement-col">Arrivée Site Chargement</th>
+        <th class="chargement-termine-col">Chargement Terminé</th>
+        <th class="arrive-destination-col">Arrivée Site Destination</th>
+        <th class="dechargement-termine-col">Déchargement Terminé</th>
+        <th class="temps-chargement-col">Temps Chargement</th>
+        <th class="temps-dechargement-col">Temps Déchargement</th>
+        <th class="temps-total-col">Temps Total Opération</th>
+    </tr>
+</thead>
+
+
+
+                <tbody id="operationsTableBody">
+                    <!-- Operations will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE-IN DRAWER for Operation Modification -->
+<!-- SLIDE-IN DRAWER for Operation Modification -->
+<div id="operationDrawer" class="operation-drawer hidden">
+    <div class="drawer-overlay" id="drawerOverlay" onclick="app.closeOperationDrawer()"></div>
+    <div class="drawer-panel">
+        <div class="drawer-header">
+            <h3 id="drawerTitle">Modifier Opération</h3>
+            <button class="drawer-close" id="closeDrawer" type="button" onclick="app.closeOperationDrawer()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <div class="drawer-content">
+            <form id="operationModifyForm" onsubmit="app.handleOperationModify(event); return false;">
+                <input type="hidden" id="editOperationId">
+                
+                <div class="operation-summary">
+                    <h4 id="operationSummary">Opération OP001-1</h4>
+                    <div id="operationDetails" class="operation-details">
+                        <!-- Operation details will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Status Section -->
+                <div class="form-section">
+                    <h5><i data-lucide="activity"></i> Statut de l'Opération</h5>
+                    <div class="form-group">
+                        <label class="form-label">Nouveau Statut</label>
+                        <select id="editOperationStatus" class="form-control" required>
+                            <option value="en_attente">En attente</option>
+                            <option value="demarree">Démarrée</option>
+                            <option value="arrivee_site_chargement">Arrivée au site de chargement</option>
+                            <option value="chargement_termine">Chargement terminé</option>
+                            <option value="arrivee_site_destination">Arrivée au site de destination</option>
+                            <option value="dechargement_termine">Déchargement terminé / Opération terminée</option>
+                            <option value="probleme_signalee">Problème Signalé</option>
+                            <option value="annulee">Annulée</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Quick Action Buttons - Moved for Easy Access -->
+<div class="quick-actions-section" style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+    <div class="quick-actions-buttons" style="display: flex; gap: 12px; justify-content: center;">
+        <button type="button" class="btn btn--outline" onclick="app.closeOperationDrawer()" style="min-width: 120px;">
+            <i data-lucide="x-circle"></i>
+            Annuler
+        </button>
+        <button type="submit" class="btn btn--primary" style="min-width: 180px;">
+            <i data-lucide="save"></i>
+            Calculer & Sauvegarder
+        </button>
+    </div>
+    <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #6c757d;">
+        Actions rapides - Vous pouvez aussi utiliser les boutons en bas du formulaire
+    </div>
+</div>
+
+                <!-- Times Section -->
+<!-- Times Section -->
+<div class="form-section">
+    <h5><i data-lucide="clock"></i> Modification des Heures</h5>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Départ Réel</label>
+            <input type="datetime-local" id="editRealDeparture" class="form-control">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Arrivée Réelle</label>
+            <input type="datetime-local" id="editRealArrival" class="form-control">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Arrivée Site Chargement</label>
+            <input type="datetime-local" id="editArriveeChargement" class="form-control">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Chargement Terminé</label>
+            <input type="datetime-local" id="editChargementTermine" class="form-control">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Arrivée Site Destination</label>
+            <input type="datetime-local" id="editArriveeDestination" class="form-control">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Déchargement Terminé</label>
+            <input type="datetime-local" id="editDechargementTermine" class="form-control">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Temps de Chargement (minutes)</label>
+            <input type="number" id="editTempsChargement" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Temps de Déchargement (minutes)</label>
+            <input type="number" id="editTempsDechargement" class="form-control" readonly>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form-label">Temps Total Opération (heures)</label>
+        <input type="text" id="editTempsTotal" class="form-control" readonly>
+    </div>
+    <div class="form-group">
+        <label class="form-label">Temps de Chargement Legacy (minutes)</label>
+        <input type="number" id="editChargingTime" class="form-control" placeholder="120" min="0">
+    </div>
+</div>
+                
+<!-- Client and Destination Section - HIDDEN -->
+<div class="form-section" style="display: none;">
+    <h5><i data-lucide="building"></i> Client et Destination</h5>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Client</label>
+            <select id="editOperationClient" class="form-control">
+                <option value=""></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Destination</label>
+            <select id="editOperationDestination" class="form-control">
+                <option value="">Sélectionner une destination</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Assignment Section - HIDDEN -->
+<div class="form-section" style="display: none;">
+    <h5><i data-lucide="users"></i> Assignations</h5>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Chauffeur</label>
+            <select id="editOperationDriver" class="form-control">
+                <option value="">Sélectionner un chauffeur</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Camion</label>
+            <select id="editOperationTruck" class="form-control">
+                <option value="">Sélectionner un camion</option>
+            </select>
+        </div>
+    </div>
+</div>
+                
+                <div class="recalculation-info">
+                    <div class="info-box">
+                        <i data-lucide="info"></i>
+                        <span>Les temps seront automatiquement calculés après modification</span>
+                    </div>
+                </div>
+                
+
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Reports -->
+<section id="reports" class="content-section">
+    <div class="section-header">
+        <h2>Rapports Opérationnels Avancés</h2>
+        <div class="header-actions">
+            <button id="generateReportBtn" class="btn btn--primary">
+                <i data-lucide="bar-chart-3"></i>
+                Générer Rapport
+            </button>
+            <button id="exportExcelBtn" class="btn btn--success" style="display: none;">
+                <i data-lucide="download"></i>
+                Exporter Excel
+            </button>
+            <button id="refreshReportsBtn" class="btn btn--secondary">
+                <i data-lucide="refresh-cw"></i>
+                Actualiser
+            </button>
+        </div>
+    </div>
+<!-- Replace the existing advanced-report-filters section in the reports HTML -->
+<div class="compact-report-filters" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-card-border); padding: var(--space-16); margin-bottom: var(--space-24); box-shadow: var(--shadow-card);">
+    <div class="filter-menu-header">
+        <button class="filter-toggle-btn" id="reportFilterToggleBtn">
+            <i data-lucide="filter"></i>
+            <span>Filtres Avancés</span>
+            <span class="filter-count" id="reportFilterCount">0</span>
+            <i data-lucide="chevron-down" class="chevron-icon"></i>
+        </button>
+        <div class="quick-actions">
+            <button id="quickResetReportFilters" class="btn-quick-reset" title="Réinitialiser tous les filtres">
+                <i data-lucide="x-circle"></i>
+            </button>
+            <button id="applyReportFiltersQuick" class="btn-quick-apply" title="Appliquer les filtres">
+                <i data-lucide="check-circle"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="filter-menu-content hidden" id="reportFilterMenuContent">
+        <!-- Compact Date Range -->
+        <div class="filter-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-12); margin-bottom: var(--space-16);">
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Date de début</label>
+                <input type="date" id="reportStartDate" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+            </div>
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Date de fin</label>
+                <input type="date" id="reportEndDate" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+            </div>
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Client</label>
+                <select id="reportClientFilter" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+                    <option value="">Tous les clients</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Statut</label>
+                <select id="reportStatusFilter" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+                    <option value="">Tous les statuts</option>
+                    <option value="terminée">Terminées</option>
+                    <option value="en_cours">En cours</option>
+                    <option value="annulée">Annulées</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Second Row -->
+        <div class="filter-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-12);">
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Camion</label>
+                <select id="reportTruckFilter" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+                    <option value="">Tous les camions</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Chauffeur</label>
+                <select id="reportDriverFilter" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+                    <option value="">Tous les chauffeurs</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Destination</label>
+                <select id="reportDestinationFilter" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+                    <option value="">Toutes les destinations</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">Période</label>
+                <select id="reportPeriodFilter" class="form-control" style="padding: var(--space-6) var(--space-8); font-size: var(--font-size-sm);">
+                    <option value="custom">Période personnalisée</option>
+                    <option value="today">Aujourd'hui</option>
+                    <option value="week">Cette semaine</option>
+                    <option value="month">Ce mois</option>
+                    <option value="quarter">Ce trimestre</option>
+                    <option value="year">Cette année</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+   
+<!-- Compact Report Type Selection -->
+<div class="report-type-selection-compact" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-card-border); padding: var(--space-16); margin-bottom: var(--space-20); box-shadow: var(--shadow-card);">
+    <h4 style="margin: 0 0 var(--space-12) 0; color: var(--color-text); display: flex; align-items: center; gap: var(--space-8);">
+        <i data-lucide="file-bar-chart"></i>
+        Sélectionner le Type de Rapport
+    </h4>
+    
+    <div class="report-type-horizontal" style="display: flex; flex-wrap: wrap; gap: var(--space-8);">
+        <label class="report-type-compact">
+            <input type="radio" name="reportType" value="missions" checked>
+            <div class="report-type-button">
+                <i data-lucide="truck"></i>
+                <span>Missions</span>
+            </div>
+        </label>
+        <label class="report-type-compact">
+            <input type="radio" name="reportType" value="operations">
+            <div class="report-type-button">
+                <i data-lucide="activity"></i>
+                <span>Opérations</span>
+            </div>
+        </label>
+        <label class="report-type-compact">
+            <input type="radio" name="reportType" value="trucks">
+            <div class="report-type-button">
+                <i data-lucide="car"></i>
+                <span>Camions</span>
+            </div>
+        </label>
+        <label class="report-type-compact">
+            <input type="radio" name="reportType" value="drivers">
+            <div class="report-type-button">
+                <i data-lucide="user-check"></i>
+                <span>Chauffeurs</span>
+            </div>
+        </label>
+        <label class="report-type-compact">
+            <input type="radio" name="reportType" value="clients">
+            <div class="report-type-button">
+                <i data-lucide="users"></i>
+                <span>Clients</span>
+            </div>
+        </label>
+        <label class="report-type-compact">
+            <input type="radio" name="reportType" value="destinations">
+            <div class="report-type-button">
+                <i data-lucide="map-pin"></i>
+                <span>Destinations</span>
+            </div>
+        </label>
+    </div>
+</div>
+    
+    
+<!-- Compact Report Summary Cards -->
+<div id="reportSummaryCards" class="report-summary-cards-compact" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-12); margin-bottom: var(--space-20);">
+    <!-- Summary cards will be populated dynamically with the new compact style -->
+</div>
+
+    
+    <!-- Report Charts -->
+    <div id="reportChartsContainer" class="report-charts-container" style="display: none; background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-card-border); padding: var(--space-20); margin-bottom: var(--space-24); box-shadow: var(--shadow-card);">
+        <h4 style="margin: 0 0 var(--space-16) 0; color: var(--color-text); display: flex; align-items: center; gap: var(--space-8);">
+            <i data-lucide="bar-chart"></i>
+            Graphiques d'Analyse
+        </h4>
+        <div id="chartsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: var(--space-20);">
+            <!-- Charts will be generated here -->
+        </div>
+    </div>
+    
+    <!-- Detailed Report Table -->
+    <div class="detailed-report-container" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-card-border); overflow: hidden; box-shadow: var(--shadow-card);">
+        <div style="padding: var(--space-20); border-bottom: 1px solid var(--color-border); background: var(--color-surface);">
+            <h4 style="margin: 0; color: var(--color-text); display: flex; align-items: center; gap: var(--space-8);">
+                <i data-lucide="table"></i>
+                <span id="reportTableTitle">Rapport Détaillé</span>
+                <span id="reportTableCount" style="background: var(--color-primary); color: white; padding: var(--space-4) var(--space-8); border-radius: var(--radius-full); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);">0</span>
+            </h4>
+        </div>
+        
+        <div class="report-table-wrapper" style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
+            <table id="detailedReportTable" class="detailed-report-table" style="width: 100%; border-collapse: collapse; font-size: var(--font-size-sm);">
+                <thead id="reportTableHead">
+                    <!-- Table headers will be populated dynamically -->
+                </thead>
+                <tbody id="reportTableBody">
+                    <!-- Table data will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div id="reportPagination" class="report-pagination" style="padding: var(--space-16) var(--space-20); border-top: 1px solid var(--color-border); display: flex; justify-content: between; align-items: center; background: var(--color-surface);">
+            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                Affichage <span id="paginationStart">1</span>-<span id="paginationEnd">10</span> sur <span id="paginationTotal">0</span> résultats
+            </div>
+            <div style="display: flex; gap: var(--space-8);">
+                <button id="prevPageBtn" class="btn btn--outline btn--sm" disabled>
+                    <i data-lucide="chevron-left"></i>
+                    Précédent
+                </button>
+                <button id="nextPageBtn" class="btn btn--outline btn--sm" disabled>
+                    Suivant
+                    <i data-lucide="chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Settings -->
+<section id="settings" class="content-section">
+    <div class="section-header">
+        <h2>Paramètres</h2>
+    </div>
+
+    <!-- Access denied for non-admins -->
+    <div id="settingsAccessDenied" class="card hidden" style="padding: 16px; border: 1px solid var(--color-card-border); border-radius: var(--radius-lg); background: #fff;">
+        <h3 style="margin-bottom: 8px;">Accès Refusé</h3>
+        <p>Seul l'administrateur peut accéder à cette page.</p>
+    </div>
+
+    <!-- SETTINGS PAGE CONTENT (shown only for admin) -->
+    <div id="settingsContent" class="hidden">
+        <!-- Users Management -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card__header" style="display:flex; justify-content: space-between; align-items:center;">
+                <h3>Gestion des Utilisateurs</h3>
+                <button id="addUserBtn" class="btn btn--primary">
+                    <i data-lucide="user-plus"></i> Nouvel utilisateur
+                </button>
+            </div>
+            <div class="card__body">
+                <div class="table-responsive">
+                    <table class="settings-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Nom d'utilisateur</th>
+                                <th>Nom complet</th>
+                                <th>Rôle</th>
+                                <th>Statut</th>
+                                <th>Dernière connexion</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Rows populated by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permissions Manager -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card__header" style="display:flex; gap:12px; align-items:center; flex-wrap: wrap;">
+                <h3 style="margin-right:auto;">Gestion des Permissions</h3>
+                <select id="permissionUserSelect" class="form-control" style="max-width:300px;">
+                    <option value="">Sélectionnez un utilisateur</option>
+                </select>
+                <button id="savePermissionsBtn" class="btn btn--primary">
+                    <i data-lucide="save"></i> Enregistrer Permissions
+                </button>
+            </div>
+            <div class="card__body">
+                <div id="permissionsTree" class="permissions-tree">
+                    <!-- Collapsible categories and checkboxes -->
+                    <div class="perm-category" data-category="missions">
+                        <div class="perm-cat-header">
+                            <button type="button" class="perm-toggle" data-target="perm-cat-missions">
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <h4>Missions</h4>
+                            <label class="perm-checkall">
+                                <input type="checkbox" class="perm-checkall-cat" data-category="missions">
+                                Tout cocher
+                            </label>
+                        </div>
+                        <div id="perm-cat-missions" class="perm-cat-body">
+                            <label><input type="checkbox" data-perm="missions.create"> Créer</label>
+                            <label><input type="checkbox" data-perm="missions.validate"> Valider</label>
+                            <label><input type="checkbox" data-perm="missions.delete"> Supprimer</label>
+                            <label><input type="checkbox" data-perm="missions.export_pdf"> Exporter PDF</label>
+                        </div>
+                    </div>
+
+                    <div class="perm-category" data-category="operations">
+                        <div class="perm-cat-header">
+                            <button type="button" class="perm-toggle" data-target="perm-cat-operations">
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <h4>Opérations</h4>
+                            <label class="perm-checkall">
+                                <input type="checkbox" class="perm-checkall-cat" data-category="operations">
+                                Tout cocher
+                            </label>
+                        </div>
+                        <div id="perm-cat-operations" class="perm-cat-body">
+                            <label><input type="checkbox" data-perm="operations.start"> Démarrer</label>
+                            <label><input type="checkbox" data-perm="operations.terminate"> Terminer</label>
+                            <label><input type="checkbox" data-perm="operations.cancel"> Annuler</label>
+                            <label><input type="checkbox" data-perm="operations.modify_assignment"> Modifier l’assignation</label>
+                        </div>
+                    </div>
+
+                    <div class="perm-category" data-category="flotte">
+                        <div class="perm-cat-header">
+                            <button type="button" class="perm-toggle" data-target="perm-cat-flotte">
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <h4>Flotte</h4>
+                            <label class="perm-checkall">
+                                <input type="checkbox" class="perm-checkall-cat" data-category="flotte">
+                                Tout cocher
+                            </label>
+                        </div>
+                        <div id="perm-cat-flotte" class="perm-cat-body">
+                            <label><input type="checkbox" data-perm="flotte.add_truck"> Ajouter camion</label>
+                            <label><input type="checkbox" data-perm="flotte.edit_truck"> Modifier camion</label>
+                            <label><input type="checkbox" data-perm="flotte.delete_truck"> Supprimer camion</label>
+                            <label><input type="checkbox" data-perm="flotte.change_location"> Changer localisation</label>
+                        </div>
+                    </div>
+
+                    <div class="perm-category" data-category="reports">
+                        <div class="perm-cat-header">
+                            <button type="button" class="perm-toggle" data-target="perm-cat-reports">
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <h4>Rapports</h4>
+                            <label class="perm-checkall">
+                                <input type="checkbox" class="perm-checkall-cat" data-category="reports">
+                                Tout cocher
+                            </label>
+                        </div>
+                        <div id="perm-cat-reports" class="perm-cat-body">
+                            <label><input type="checkbox" data-perm="reports.view"> Voir rapports</label>
+                            <label><input type="checkbox" data-perm="reports.export_excel"> Exporter Excel</label>
+                        </div>
+                    </div>
+
+                    <div class="perm-category" data-category="dashboard">
+                        <div class="perm-cat-header">
+                            <button type="button" class="perm-toggle" data-target="perm-cat-dashboard">
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <h4>Tableau de bord</h4>
+                            <label class="perm-checkall">
+                                <input type="checkbox" class="perm-checkall-cat" data-category="dashboard">
+                                Tout cocher
+                            </label>
+                        </div>
+                        <div id="perm-cat-dashboard" class="perm-cat-body">
+                            <label><input type="checkbox" data-perm="dashboard.view"> Voir dashboard</label>
+                            <label><input type="checkbox" data-perm="dashboard.view_history"> Voir historique</label>
+                        </div>
+                    </div>
+
+                    <div class="perm-category" data-category="settings">
+                        <div class="perm-cat-header">
+                            <button type="button" class="perm-toggle" data-target="perm-cat-settings">
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                            <h4>Paramètres</h4>
+                            <label class="perm-checkall">
+                                <input type="checkbox" class="perm-checkall-cat" data-category="settings">
+                                Tout cocher
+                            </label>
+                        </div>
+                        <div id="perm-cat-settings" class="perm-cat-body">
+                            <label><input type="checkbox" data-perm="settings.manage_users"> Gérer utilisateurs</label>
+                            <label><input type="checkbox" data-perm="settings.manage_permissions"> Gérer permissions</label>
+                            <label><input type="checkbox" data-perm="settings.backup_restore"> Sauvegarde & Restauration</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="card">
+            <div class="card__header" style="display:flex; align-items:center; gap:12px; flex-wrap: wrap;">
+                <h3 style="margin-right:auto;">Sauvegarde & Restauration</h3>
+                <div class="backup-status">
+                    <span id="lastBackupInfo">Dernière sauvegarde: --</span>
+                    <span style="margin:0 8px;">|</span>
+                    <span id="nextBackupInfo">Prochaine dans: --</span>
+                </div>
+            </div>
+            <div class="card__body" style="display:flex; gap:12px; flex-wrap: wrap;">
+                <button id="downloadBackupBtn" class="btn btn--outline">
+                    <i data-lucide="download"></i> Télécharger la sauvegarde (JSON)
+                </button>
+                <label class="btn btn--primary" for="restoreFileInput">
+                    <i data-lucide="upload"></i> Restaurer depuis JSON
+                </label>
+                <input id="restoreFileInput" type="file" accept="application/json" class="hidden">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ENHANCED Destination Wizard Assignment Modal -->
+<div id="assignmentModal" class="modal hidden">
+    <div class="modal-content modal-extra-large">
+        <div class="modal-header">
+            <h3>🎯 Assignment Intelligent Multi-Destinations</h3>
+            <button class="modal-close" id="closeAssignmentModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Mission Summary -->
+            <div id="missionDetailsAssignment" class="mission-details-card">
+                <!-- Mission details will be populated here -->
+            </div>
+            
+            <!-- Destination Wizard -->
+            <div class="destination-wizard">
+                <!-- Wizard Progress -->
+                <div class="wizard-progress">
+                    <div class="progress-header">
+                        <h4>📍 Progression par Destination</h4>
+                        <div class="progress-counter" id="wizardProgressCounter">
+                            Étape 1 sur 1
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="wizardProgressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="destinations-overview" id="destinationsOverview">
+                        <!-- Destination steps will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Current Destination Assignment -->
+                <div class="current-destination-card">
+                    <div class="destination-header">
+                        <h3 id="currentDestinationTitle">Destination 1</h3>
+                        <div id="currentDestinationInfo" class="destination-details">
+                            <!-- Current destination info will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Truck Recommendations with Full Info -->
+                    <div class="enhanced-truck-recommendations">
+                        <h4>🚛 Camions Disponibles avec Informations Complètes</h4>
+                        <div id="enhancedTruckList" class="enhanced-truck-grid">
+                            <!-- Enhanced truck cards will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Current Destination Assignment Slots -->
+                    <div class="destination-assignment-slots">
+                        <h4>📋 Assignations pour cette Destination</h4>
+                        <div id="currentDestinationSlots">
+                            <!-- Assignment slots for current destination will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Wizard Controls -->
+                <div class="wizard-controls">
+                    <div class="control-left">
+                        <button type="button" class="btn btn--outline" id="wizardPreviousBtn" style="display: none;">
+                            <i data-lucide="arrow-left"></i>
+                            Destination Précédente
+                        </button>
+                    </div>
+                    
+                    <div class="control-center">
+                        <button type="button" class="btn btn--outline" id="wizardCancelBtn">
+                            <i data-lucide="x-circle"></i>
+                            Annuler le Wizard
+                        </button>
+                        <button type="button" class="btn btn--secondary" id="wizardSaveDraftBtn">
+                            <i data-lucide="save"></i>
+                            Sauvegarder Brouillon
+                        </button>
+                    </div>
+                    
+                    <div class="control-right">
+                        <button type="button" class="btn btn--primary" id="wizardNextBtn">
+                            Destination Suivante
+                            <i data-lucide="arrow-right"></i>
+                        </button>
+                        <button type="button" class="btn btn--success" id="wizardCompleteBtn" style="display: none;">
+                            <i data-lucide="check-circle"></i>
+                            Valider Mission Complète
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Mission Modification Modal (Dispatcher) - ENHANCED VERSION -->
+<div id="modificationModal" class="modal hidden">
+    <div class="modal-content modal-extra-large">
+        <div class="modal-header">
+            <h3>🔄 Modification Avancée d'Assignation</h3>
+            <button class="modal-close" id="closeModificationModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Mission Summary -->
+            <div id="missionDetailsModification" class="mission-details-card">
+                <!-- Mission details will be populated here -->
+            </div>
+            
+            <!-- Current Assignments Display -->
+            <div class="current-assignments-section">
+                <h4>📋 Assignations Actuelles</h4>
+                <div id="currentAssignments" class="current-assignments">
+                    <!-- Current assignments will be shown here -->
+                </div>
+            </div>
+            
+            <!-- Enhanced Truck Selection (like wizard) -->
+            <div class="enhanced-modification-section">
+                <h4>🚛 Sélectionner de Nouveaux Camions</h4>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Choisissez de nouveaux camions pour remplacer les assignations actuelles. 
+                    Les informations détaillées vous aideront à faire le meilleur choix.
+                </p>
+                
+                <!-- Enhanced Truck List (same as wizard) -->
+                <div id="enhancedModificationTruckList" class="enhanced-truck-grid">
+                    <!-- Enhanced truck cards will be populated here -->
+                </div>
+                
+                <!-- Selected Trucks Display -->
+                <div class="selected-trucks-section">
+                    <h4>✅ Camions Sélectionnés pour cette Mission</h4>
+                    <div id="selectedModificationTrucks" class="selected-trucks-display">
+                        <div class="no-selection-message">
+                            Aucun camion sélectionné. Cliquez sur "Assigner" sur les camions ci-dessus.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modification Reason Form -->
+            <form id="modificationForm">
+                <div class="form-section">
+                    <h4>📝 Informations sur la Modification</h4>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Raison de la modification *</label>
+                        <select id="modificationReason" class="form-control" required>
+                            <option value="">Sélectionner une raison</option>
+                            <option value="Panne technique">Panne technique</option>
+                            <option value="Chauffeur malade">Chauffeur malade</option>
+                            <option value="Optimisation logistique">Optimisation logistique</option>
+                            <option value="Maintenance préventive">Maintenance préventive</option>
+                            <option value="Disponibilité améliorée">Disponibilité améliorée</option>
+                            <option value="Remplacement temporaire">Remplacement temporaire</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Commentaires détaillés *</label>
+                        <textarea id="modificationComments" class="form-control" rows="4" placeholder="Expliquez en détail la raison de cette modification et les changements apportés..." required></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn--outline" id="cancelModification">
+                        <i data-lucide="x-circle"></i>
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn--primary">
+                        <i data-lucide="save"></i>
+                        Appliquer les Modifications
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modification History Modal -->
+<div id="historyModal" class="modal hidden">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3>Historique des Modifications</h3>
+            <button class="modal-close" id="closeHistoryModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="modificationHistory" class="modification-history">
+                <!-- Modification history will be populated here -->
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn--outline" id="closeHistory">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Client Modal -->
+<div id="clientModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="clientModalTitle">Nouveau Client</h3>
+            <button class="modal-close" id="closeClientModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="clientForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nom du client *</label>
+                        <input type="text" id="clientName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Wilaya *</label>
+                        <select id="clientWilaya" class="form-control" required>
+                            <option value="">Sélectionner une wilaya</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Adresse</label>
+                    <input type="text" id="clientAddress" class="form-control">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Personne de contact</label>
+                        <input type="text" id="clientContact" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="clientEmail" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" id="clientPhone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Localisation GPS du Client</label>
+                        <div class="gps-input-wrapper">
+                            <i class="gps-icon" data-lucide="map-pin"></i>
+                            <input type="url" id="clientGPS" class="form-control" placeholder="https://www.google.com/maps/place/...">
+                        </div>
+                        <small class="gps-help">Collez le lien Google Maps de la localisation du client</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Destinations *</label>
+                    <div id="destinationsList">
+                        <div class="destination-item">
+                            <input type="text" class="form-control destination-name" placeholder="Nom de la destination" required>
+                            <select class="form-control destination-wilaya" required>
+                                <option value="">Wilaya</option>
+                            </select>
+							                            <input type="text" class="form-control destination-contact" placeholder="Personne à contacter (optionnel)">
+
+                            <div class="gps-input-wrapper">
+                                <i class="gps-icon" data-lucide="map-pin"></i>
+                                <input type="url" class="form-control destination-gps" placeholder="https://www.google.com/maps/place/...">
+                            </div>
+                            <button type="button" class="btn btn--outline btn-remove-destination">
+                                <i data-lucide="x"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" id="addDestination" class="btn btn--outline">
+                        <i data-lucide="plus"></i>
+                        Ajouter une destination
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn--outline" id="cancelClient">Annuler</button>
+                    <button type="submit" class="btn btn--primary">
+                        <i data-lucide="save"></i>
+                        <span id="clientSaveText">Sauvegarder</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Truck Modal -->
+<div id="truckModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Nouveau camion</h3>
+            <button class="modal-close" id="closeTruckModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <form id="truckForm" class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Immatriculation *</label>
+                    <input type="text" id="truckRegistration" class="form-control" required placeholder="16-12345-01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Marque *</label>
+                    <input type="text" id="truckBrand" class="form-control" required placeholder="Mercedes, Volvo, Scania...">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Modèle *</label>
+                    <input type="text" id="truckModel" class="form-control" required placeholder="Actros 1841">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Année</label>
+                    <input type="number" id="truckYear" class="form-control" min="2000" max="2025">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Capacité (tonnes)</label>
+                    <input type="number" id="truckCapacity" class="form-control" min="1" max="100" placeholder="25">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Localisation actuelle</label>
+                    <select id="truckLocation" class="form-control">
+                        <option value="">Sélectionner wilaya</option>
+                    </select>
+                </div>
+            </div>
+            <!-- NEW: Carte Naftal Field -->
+<div class="form-row" id="carteNaftalSection">
+    <div class="form-group">
+        <label class="form-label">Carte Naftal Associée</label>
+        <input type="text" id="truckCarteNaftal" class="form-control" placeholder="Numéro de carte Naftal">
+    </div>
+    <div class="form-group">
+        <label class="form-label">Chauffeur Assigné</label>
+        <select id="truckAssignedDriver" class="form-control">
+            <option value="">Aucun chauffeur assigné</option>
+        </select>
+    </div>
+</div>
+
+<!-- NOUVEAU: Champ GPS du camion -->
+<div class="form-group">
+    <label class="form-label">Localisation GPS du Camion</label>
+    <div class="gps-input-wrapper">
+        <i class="gps-icon" data-lucide="map-pin"></i>
+        <input type="url" id="truckGPS" class="form-control" placeholder="https://www.google.com/maps/place/...">
+    </div>
+    <small class="gps-help">Collez le lien Google Maps de la localisation actuelle du camion</small>
+</div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn--outline" id="cancelTruck">Annuler</button>
+                <button type="submit" class="btn btn--primary">Créer le camion</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <!-- Driver Modal -->
+    <div id="driverModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nouveau chauffeur</h3>
+                <button class="modal-close" id="closeDriverModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="driverForm" class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nom complet *</label>
+                        <input type="text" id="driverName" class="form-control" required placeholder="Mohamed Benali">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Numéro de permis *</label>
+                        <input type="text" id="driverLicense" class="form-control" required placeholder="ALG123456789">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" id="driverPhone" class="form-control" placeholder="0555 12 34 56">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Années d'expérience</label>
+                        <input type="number" id="driverExperience" class="form-control" min="0" max="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Localisation actuelle</label>
+                    <select id="driverLocation" class="form-control">
+                        <option value="">Sélectionner wilaya</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn--outline" id="cancelDriver">Annuler</button>
+                    <button type="submit" class="btn btn--primary">Créer le chauffeur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<!-- Mission Modal -->
+<div id="missionModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="missionModalTitle">Nouvelle Mission</h3>
+            <button class="modal-close" id="closeMissionModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+<div class="modal-body">
+    <form id="missionForm">
+        <!-- Client Selection - UNCHANGED -->
+<!-- Client Selection - ENHANCED -->
+<div class="mission-client-section">
+    <div class="form-group">
+        <label class="form-label mission-client-label">
+            Client
+            <span class="required-field-indicator">*</span>
+        </label>
+        <select id="missionClient" class="form-control mission-client-select" required>
+            <option value="">Sélectionner un client</option>
+        </select>
+    </div>
+</div>
+
+
+
+        <!-- MULTIPLE DESTINATIONS SECTION - NEW -->
+        <div class="form-group">
+            <label class="form-label">Destinations de livraison *</label>
+            <div id="destinationsMissionList">
+                <!-- First destination (default) -->
+<div class="destination-mission-item" data-destination-index="0">
+    <div class="destination-header">
+        <h5>Destination 1</h5>
+        <button type="button" class="btn btn--outline btn--sm btn-remove-mission-destination" style="display: none;">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+    
+    <!-- NEW: Per-Destination Departure Section -->
+    <div class="destination-departure-section" style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #007bff;">
+        <h6 style="margin: 0 0 12px 0; color: #007bff; font-weight: 600;">📍 Départ pour cette destination</h6>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Wilaya de départ *</label>
+                <select class="form-control mission-destination-departure-wilaya" required>
+                    <option value="">Sélectionner wilaya de départ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">GPS Départ</label>
+                <div class="gps-input-wrapper">
+                    <i class="gps-icon" data-lucide="map-pin"></i>
+                    <input type="url" class="form-control mission-destination-departure-gps" placeholder="https://www.google.com/maps/place/...">
+                </div>
+                <small class="gps-help">Lien Google Maps du point de départ</small>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Date de départ *</label>
+                <input type="date" class="form-control mission-destination-departure-date" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Heure de départ *</label>
+                <input type="time" class="form-control mission-destination-departure-time" required>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Existing Destination Fields -->
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Nom de la destination *</label>
+            <select class="form-control mission-destination-name" required>
+                <option value="">Sélectionner une destination</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Wilaya d'arrivée *</label>
+            <select class="form-control mission-destination-wilaya" required>
+                <option value="">Sélectionner wilaya d'arrivée</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">GPS Destination</label>
+        <div class="gps-input-wrapper">
+            <i class="gps-icon" data-lucide="map-pin"></i>
+            <input type="url" class="form-control mission-destination-gps" placeholder="https://www.google.com/maps/place/...">
+        </div>
+        <small class="gps-help">Lien Google Maps de la destination</small>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Date d'arrivée prévue *</label>
+            <input type="date" class="form-control mission-destination-arrival-date" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Heure d'arrivée prévue *</label>
+            <input type="time" class="form-control mission-destination-arrival-time" required>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Nombre de camions *</label>
+            <input type="number" class="form-control mission-destination-trucks" min="1" max="10" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Type de produit *</label>
+            <select class="form-control mission-destination-product-type" required>
+                <option value="">Sélectionner le type</option>
+                <option value="Produits alimentaires" selected>Produits alimentaires</option>
+                <option value="Équipements industriels">Équipements industriels</option>
+                <option value="Matériaux de construction">Matériaux de construction</option>
+                <option value="Produits chimiques">Produits chimiques</option>
+                <option value="Marchandises générales">Marchandises générales</option>
+                <option value="Produits pétroliers">Produits pétroliers</option>
+                <option value="Autres">Autres</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Type de mission *</label>
+        <select class="form-control mission-destination-mission-type" required>
+            <option value="">Sélectionner le type</option>
+            <option value="aller" selected>Aller</option>
+            <option value="retour">Retour</option>
+            <option value="aller_retour">Aller-Retour</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Commentaires pour cette destination</label>
+        <textarea class="form-control mission-destination-comments" rows="2" placeholder="Informations spécifiques à cette destination..."></textarea>
+    </div>
+</div>
+            </div>
+            
+            <button type="button" id="addMissionDestination" class="btn btn--outline">
+                <i data-lucide="plus"></i>
+                Ajouter une destination
+            </button>
+        </div>
+
+        <!-- Global Mission Comments -->
+        <div class="form-group">
+            <label class="form-label">Commentaires généraux de la mission</label>
+            <textarea id="missionComments" class="form-control" rows="3" placeholder="Commentaires généraux pour toute la mission..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn btn--outline" id="cancelMission">Annuler</button>
+            <button type="submit" class="btn btn--primary">
+                <i data-lucide="save"></i>
+                <span id="missionSaveText">Créer Mission</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+    </div>
+</div>
+
+<!-- Fiche de Mission Modal -->
+<div id="ficheModal" class="modal hidden">
+    <div class="modal-content modal-extra-large">
+        <div class="modal-header">
+            <h3>Fiche de Mission Professionnelle</h3>
+            <div class="header-actions">
+                <button id="printFiche" class="btn btn--outline btn--sm">
+                    <i data-lucide="printer"></i>
+                    Imprimer
+                </button>
+                <button class="modal-close" id="closeFicheModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div id="ficheContent" class="fiche-content-professional">
+                <!-- Fiche content will be populated here -->
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn--outline" id="closeFiche">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Operation Edit Modal with Dispatcher Controls -->
+<div id="operationEditModal" class="modal hidden">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3>Modifier Opération - Contrôles Avancés</h3>
+            <button class="modal-close" id="closeOperationEditModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="operationEditForm">
+                <input type="hidden" id="editOperationId">
+                
+                <!-- Operation Status Section -->
+                <div class="form-section">
+                    <h5><i data-lucide="activity"></i> Statut Opération</h5>
+                    <div class="form-group">
+                        <label class="form-label">Nouveau Statut *</label>
+                        <select id="editOperationStatus" class="form-control" required>
+                            <option value="en_attente">En attente</option>
+                            <option value="demarree">Démarrée</option>
+                            <option value="arrivee_site_chargement">Arrivée au site de chargement</option>
+                            <option value="chargement_termine">Chargement terminé</option>
+                            <option value="arrivee_site_destination">Arrivée au site de destination</option>
+                            <option value="dechargement_termine">Déchargement terminé / Opération terminée</option>
+                            <option value="probleme_signalee">Problème Signalé</option>
+                            <option value="annulee">Annulée</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dispatcher Override Controls -->
+                <div class="form-section dispatcher-controls" id="dispatcherControls">
+                    <h5><i data-lucide="settings"></i> Contrôles Répartiteur</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Forcer Statut Camion</label>
+                            <select id="forceTrackStatus" class="form-control">
+                                <option value="">Pas de modification</option>
+                                <option value="available">Disponible</option>
+                                <option value="busy">En opération</option>
+                                <option value="blocked">Bloqué (Problème)</option>
+                                <option value="maintenance">Maintenance/Vidange</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Forcer Localisation Camion</label>
+                            <select id="forceTruckLocation" class="form-control">
+                                <option value="">Pas de modification</option>
+                                <!-- Wilaya options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Raison du Forçage</label>
+                        <textarea id="forceReason" class="form-control" rows="2" placeholder="Expliquez pourquoi vous forcez ces changements..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Times Section (keeping existing) -->
+                <div class="form-section">
+                    <h5><i data-lucide="clock"></i> Heures d'Opération</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Départ Réel</label>
+                            <input type="datetime-local" id="editRealDeparture" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Arrivée Réelle</label>
+                            <input type="datetime-local" id="editRealArrival" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn--outline" id="cancelOperationEdit">Annuler</button>
+                    <button type="submit" class="btn btn--primary">
+                        <i data-lucide="save"></i>
+                        Appliquer Modifications Cycliques
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Maintenance Confirmation Modal -->
+<div id="maintenanceConfirmModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>⚠️ Confirmation d'Assignation</h3>
+            <button class="modal-close" id="closeMaintenanceConfirmModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="maintenanceConfirmContent" class="maintenance-confirm-content">
+                <!-- Content will be populated dynamically -->
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn--outline" id="cancelMaintenanceAssignment">
+                    Annuler
+                </button>
+                <button type="button" class="btn btn--primary" id="confirmMaintenanceAssignment">
+                    <i data-lucide="check"></i>
+                    Confirmer l'Assignation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Modal (Add/Edit) -->
+<div id="userModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+        <h3 id="userModalTitle">Nouvel utilisateur</h3>
+        <button class="modal-close" id="closeUserModal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+        <form id="userForm">
+            <input type="hidden" id="editUserId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nom d'utilisateur *</label>
+                    <input type="text" id="userUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nom complet *</label>
+                    <input type="text" id="userFullName" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Mot de passe <small>(laisser vide pour ne pas changer)</small></label>
+                    <input type="password" id="userPassword" class="form-control" placeholder="********">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rôle *</label>
+                    <select id="userRole" class="form-control" required>
+                        <option value="planner">Planificateur</option>
+                        <option value="dispatcher">Répartiteur</option>
+                        <option value="coordinator">Coordinateur</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Statut *</label>
+                    <select id="userStatus" class="form-control" required>
+                        <option value="active">Actif</option>
+                        <option value="disabled">Désactivé</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Permissions: par la page "Gestion des Permissions"</label>
+                    <input type="text" disabled class="form-control" value="Utilisez l'onglet Permissions">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn--outline" id="cancelUserBtn">Annuler</button>
+                <button type="submit" class="btn btn--primary" id="saveUserBtn"><i data-lucide="save"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal (generic) -->
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+        <h3>Confirmation</h3>
+        <button class="modal-close" id="closeConfirmModal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+        <p id="confirmMessage">Êtes-vous sûr ?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn--outline" id="confirmCancelBtn">Annuler</button>
+            <button type="button" class="btn btn--primary" id="confirmOkBtn">Confirmer</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add jsPDF library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+    <!-- Notifications Panel -->
+    <div id="notificationsPanel" class="notifications-panel hidden">
+        <div class="notifications-header">
+            <h4>Notifications</h4>
+            <button id="clearNotifications" class="btn btn--outline btn--sm">Tout effacer</button>
+        </div>
+        <div id="notificationsList" class="notifications-list">
+            <!-- Notifications will be populated here -->
+        </div>
+    </div>
+<!-- Add Excel Export Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Add Cytoscape.js library -->
+<script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+
+<script src="storage-converter.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
