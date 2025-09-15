@@ -22149,6 +22149,14 @@ displayTrucksWithForceEdit() {
         }
     }, 100);
 }
+
+
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new TransportApp();
+});
 // 🔄 Enhanced Backup with Online Storage
 async function createOnlineBackup() {
     try {
@@ -22185,11 +22193,4 @@ document.addEventListener('DOMContentLoaded', function() {
         backupBtn.onclick = createOnlineBackup;
         headerActions.appendChild(backupBtn);
     }
-});
-
-}
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new TransportApp();
 });
