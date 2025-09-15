@@ -22149,6 +22149,43 @@ displayTrucksWithForceEdit() {
         }
     }, 100);
 }
+// 🔄 Enhanced Backup with Online Storage
+async function createOnlineBackup() {
+    try {
+        const backup = await onlineStorage.createBackup();
+        console.log('✅ Online backup created:', backup.timestamp);
+        
+        // Also download local copy
+        const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transport_backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        return backup;
+    } catch (error) {
+        console.error('Backup failed:', error);
+        alert('Backup failed. Check your internet connection.');
+    }
+}
+
+// 📤 Auto-backup every 8 hours (as you requested)
+setInterval(createOnlineBackup, 8 * 60 * 60 * 1000);
+
+// 🎯 Add backup button to your UI
+document.addEventListener('DOMContentLoaded', function() {
+    // Add backup button to header actions
+    const headerActions = document.querySelector('.header-actions');
+    if (headerActions) {
+        const backupBtn = document.createElement('button');
+        backupBtn.className = 'btn btn--outline';
+        backupBtn.innerHTML = '<i data-lucide="cloud-upload"></i> Backup Online';
+        backupBtn.onclick = createOnlineBackup;
+        headerActions.appendChild(backupBtn);
+    }
+});
 
 }
 
